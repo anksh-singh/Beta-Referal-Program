@@ -19,6 +19,6 @@ from referral import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("send_referral_email/", "views.send_email"),
+    path("send_referral_email/", views.send_email, name="send_email"),
 
 ]
