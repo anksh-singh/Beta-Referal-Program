@@ -29,7 +29,6 @@ def get_client():
         return False
 
 
-
 def send_email(request):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     #read credentials from file
