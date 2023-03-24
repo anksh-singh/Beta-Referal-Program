@@ -35,7 +35,6 @@ def send_email(request):
     #read credentials from file
     with open('credentials.json', 'r') as f:
         data_= json.load(f)
-        print("cred_data", type(data_))
         creds = ServiceAccountCredentials.from_json_keyfile_dict(data_, scope)
         # authenticate using the credentials
         client = gspread.authorize(creds)
@@ -105,13 +104,10 @@ def user_landing_page(request):
     full_row = fetch_row_value_exist('Email', email, all_values)
 
     if full_row:
-        print(full_row['Email'])
         if full_row['is_whitelisted'] == "TRUE":
             email_cell_row = get_row_number('Email', email, all_values)
             if email_cell_row != None:
                 email_cell_row += 2
-            
-            # print(not full_row['Wallet Address'])
             if full_row['Referred by'] is not None and not full_row['Wallet Address']:
                 referred_by_row = fetch_row_value_exist('Email', full_row['Referred by'], all_values)
                 if referred_by_row:
