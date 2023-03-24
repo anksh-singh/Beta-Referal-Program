@@ -10,6 +10,13 @@ import datetime
 
 # Create your views here.
 
+
+def get_row_number(key, value, list_of_dicts):
+    for i, dictionary in enumerate(list_of_dicts):
+        if key in dictionary and dictionary[key] == value:
+            return i
+    return None
+
 def get_client():
     scope = [config('GOOGLE_SHEET_SCOPE')]
     try:
@@ -61,7 +68,7 @@ def validate_user_authorities(request):
     if full_row:
         if full_row['is_whitelisted'] == 'TRUE':
             utc_now = datetime.datetime.now(datetime.timezone.utc)
-            email_cell_row = get_index('Email', email, all_values)
+            email_cell_row = get_row_number('Email', email, all_values)
             if email_cell_row != None:
                 email_cell_row += 2
             sheet.update_cell(email_cell_row, 9, utc_now.strftime('%Y-%m-%d %H:%M:%S'))
@@ -100,7 +107,7 @@ def user_landing_page(request):
     if full_row:
         print(full_row['Email'])
         if full_row['is_whitelisted'] == "TRUE":
-            email_cell_row = get_index('Email', email, all_values)
+            email_cell_row = get_row_number('Email', email, all_values)
             if email_cell_row != None:
                 email_cell_row += 2
             
@@ -111,7 +118,7 @@ def user_landing_page(request):
                     referred_by_user_points = referred_by_row['Points']
                     if referred_by_user_points in [None, '']:
                         referred_by_user_points = 0
-                    referred_by_row_index = get_index('Email', referred_by_row['Email'], all_values)
+                    referred_by_row_index = get_row_number('Email', referred_by_row['Email'], all_values)
                     referred_by_row_index += 2
                     sheet.update_cell(referred_by_row_index, 6, int(referred_by_user_points)+1)
                     referred_by_successful_referral = referred_by_row['Successful Referrals']
@@ -156,3 +163,4 @@ def fetch_row_value_exist(key, value, list_of_dicts):
         if key in d and d[key] == value:
             return d
     return False
+
