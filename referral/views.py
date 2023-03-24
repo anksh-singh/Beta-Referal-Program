@@ -57,7 +57,7 @@ def validate_user_authorities(request):
         return JsonResponse(response)
     
     all_values = sheet.get_all_records()
-    full_row = check_value_exists('Email', email, all_values)
+    full_row = fetch_row_value_exist('Email', email, all_values)
     if full_row:
         if full_row['is_whitelisted'] == 'TRUE':
             utc_now = datetime.datetime.now(datetime.timezone.utc)
@@ -95,7 +95,7 @@ def user_landing_page(request):
         return JsonResponse(response)
 
     all_values = sheet.get_all_records()
-    full_row = check_value_exists('Email', email, all_values)
+    full_row = fetch_row_value_exist('Email', email, all_values)
 
     if full_row:
         print(full_row['Email'])
@@ -106,7 +106,7 @@ def user_landing_page(request):
             
             # print(not full_row['Wallet Address'])
             if full_row['Referred by'] is not None and not full_row['Wallet Address']:
-                referred_by_row = check_value_exists('Email', full_row['Referred by'], all_values)
+                referred_by_row = fetch_row_value_exist('Email', full_row['Referred by'], all_values)
                 if referred_by_row:
                     referred_by_user_points = referred_by_row['Points']
                     if referred_by_user_points in [None, '']:
@@ -124,7 +124,7 @@ def user_landing_page(request):
             if not full_row['Referral Code']:
                 while True:
                     unique_referral_code = generate_referral_code()
-                    if not check_value_exists('Referral Code', unique_referral_code, all_values):
+                    if not fetch_row_value_exist('Referral Code', unique_referral_code, all_values):
                         sheet.update_cell(email_cell_row, 4, unique_referral_code)
                         break
                 user_referral_code = unique_referral_code
@@ -151,7 +151,7 @@ def user_landing_page(request):
 
 
 
-def check_value_exists(key, value, list_of_dicts):
+def fetch_row_value_exist(key, value, list_of_dicts):
     for d in list_of_dicts:
         if key in d and d[key] == value:
             return d
