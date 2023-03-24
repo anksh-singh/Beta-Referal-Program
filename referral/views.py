@@ -153,6 +153,10 @@ def user_landing_page(request):
 
 
 
+@api_view(['GET'])
+def user_award_info(request):
+    return HttpResponse("")
+
 def fetch_row_value_exist(key, value, list_of_dicts):
     for d in list_of_dicts:
         if key in d and d[key] == value:
