@@ -3,10 +3,25 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os, json
 from django.http import JsonResponse
-
-
+from rest_framework.decorators import api_view
+# from .helper_function import generate_referral_code, valid_json
+from decouple import config
+import datetime
 
 # Create your views here.
+
+def get_client():
+    scope = [config('GOOGLE_SHEET_SCOPE')]
+    try:
+        creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(config('SHEET_ID')).sheet1
+        return sheet
+    except Exception as e:
+        print("error while fetching sheet data",e)
+        return False
+
+
 
 def send_email(request):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -61,7 +76,7 @@ def validate_user_authorities(request):
     else:
         data['is_whitelisted'] = False
         response['data'],response['status_code'], response['message']=data, 404, 'User does not exist'
-        return JsonResponse(response)
+    return JsonResponse(response)
 
 
 @api_view(['GET'])
