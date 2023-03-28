@@ -65,4 +65,70 @@ def validate_user_authorities(request):
 
 @api_view(['GET'])
 def user_landing_page(request):
-    
+    response, data = {}, {}
+    body_unicode = request.body.decode('utf-8')
+    body_data = json.loads(body_unicode)
+    email, wallet_address = body_data.get('email',None), body_data.get('wallet_address', None)
+    if not email or not wallet_address:
+        response['status_code'], response['message'] = 400, 'email and wallet address both are required fields'
+        return JsonResponse(response)
+
+    sheet = get_client()
+    if not sheet:
+        response['status_code'], response['message'] = 500, 'Internal error'
+        return JsonResponse(response)
+
+    all_values = sheet.get_all_records()
+    full_row = check_value_exists('Email', email, all_values)
+
+    if full_row:
+        print(full_row['Email'])
+        if full_row['is_whitelisted'] == "TRUE":
+            email_cell_row = get_index('Email', email, all_values)
+            if email_cell_row != None:
+                email_cell_row += 2
+            
+            # print(not full_row['Wallet Address'])
+            if full_row['Referred by'] is not None and not full_row['Wallet Address']:
+                referred_by_row = check_value_exists('Email', full_row['Referred by'], all_values)
+                if referred_by_row:
+                    referred_by_user_points = referred_by_row['Points']
+                    if referred_by_user_points in [None, '']:
+                        referred_by_user_points = 0
+                    referred_by_row_index = get_index('Email', referred_by_row['Email'], all_values)
+                    referred_by_row_index += 2
+                    sheet.update_cell(referred_by_row_index, 6, int(referred_by_user_points)+1)
+                    referred_by_successful_referral = referred_by_row['Successful Referrals']
+                    if referred_by_successful_referral in [None, '']:
+                        referred_by_successful_referral = 0
+                    sheet.update_cell(referred_by_row_index, 10, int(referred_by_successful_referral)+1)
+                
+            sheet.update_cell(email_cell_row, 3, wallet_address)
+            user_referral_code = full_row['Referral Code']
+            if not full_row['Referral Code']:
+                while True:
+                    unique_referral_code = generate_referral_code()
+                    if not check_value_exists('Referral Code', unique_referral_code, all_values):
+                        sheet.update_cell(email_cell_row, 4, unique_referral_code)
+                        break
+                user_referral_code = unique_referral_code
+            referral_count = get_count_of_rows('Referred by', email, all_values)
+            data['number_of_referrals'] = referral_count
+            data['successful_referrals_count'] = full_row['Successful Referrals']
+            if user_referral_code:
+                unique_referral_code = f"https://www.frontier.xyz/bundle-dapp?ref={user_referral_code}"
+            else:
+                unique_referral_code = ""
+
+            data['email'], data['wallet_address'] = email, wallet_address
+            data['referral_url'], data['points']  = unique_referral_code, full_row['Points']
+            response['data'] = data
+            response['status_code'], response['message'] = 200, 'wallet connected successfully'
+        else:
+            data['is_whitelisted'] = False
+            response['data'] = data
+            response['status_code'], response['message']  = 403, 'User is not whitelisted'
+    else:
+        response['status_code'], response['message'] = 404, 'User does not exist'
+
+    return JsonResponse(response)
