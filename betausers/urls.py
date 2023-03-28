@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("send_referral_email/", views.send_email, name="send_email"),
     path("api/user-validation/", views.validate_user_authorities, name="validate_user_authorities"),
-    path("api/user-wallet-connect/", views.user_wallet_connect, name="user_wallet_connect"),
+    path("api/landing-page-connect/", views.user_landing_page, name="user_landing_page"),
     path("api/fetch-referral-details/", views.fetch_referral_details, name="fetch_referral_details"),
 
 ]
