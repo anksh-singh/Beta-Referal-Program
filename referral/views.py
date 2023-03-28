@@ -17,12 +17,12 @@ def send_email(request):
         creds = ServiceAccountCredentials.from_json_keyfile_dict(data_, scope)
         # authenticate using the credentials
         client = gspread.authorize(creds)
-        open the Google Sheet by its ID
+        # open the Google Sheet by its ID
         sheet_id = 'your_sheet_id_here'
         sheet = client.open_by_key(sheet_id).sheet1
         # get all the data from the sheet
         data = sheet.get_all_records()
-        print(creds)
+        
 
     return HttpResponse("ok")
 
@@ -133,3 +133,11 @@ def user_landing_page(request):
         response['status_code'], response['message'] = 404, 'User does not exist'
 
     return JsonResponse(response)
+
+
+
+def check_value_exists(key, value, list_of_dicts):
+    for d in list_of_dicts:
+        if key in d and d[key] == value:
+            return d
+    return False
