@@ -61,3 +61,8 @@ def validate_user_authorities(request):
         data['is_whitelisted'] = False
         response['data'],response['status_code'], response['message']=data, 404, 'User does not exist'
         return JsonResponse(response)
+
+
+@api_view(['GET'])
+def user_landing_page(request):
+    
