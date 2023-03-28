@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponse
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os, json
+from django.http import JsonResponse
 
 
 
